@@ -20,9 +20,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/health/', health_check),
 
-    # path('api/auth/', include('users.urls')),          # Auth step
-    # path('api/sellers/', include('sellers.urls')),      # Seller Verification step
-    # path('api/products/', include('products.urls')),    # Products step
+    path('api/auth/', include('users.urls')),
+    path('api/sellers/', include('sellers.urls')),
+    path('api/products/', include('products.urls')),
     # path('api/cart/', include('cart.urls')),             # Cart step
     # path('api/wishlist/', include('wishlist.urls')),     # Wishlist step
     # path('api/orders/', include('orders.urls')),         # Orders step

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap");
 @import "tailwindcss";
 
 /*
@@ -8,16 +8,16 @@
 */
 @theme {
   /* Colors */
-  --color-primary: #5B5FDE;
-  --color-accent: #8B5CF6;
-  --color-success: #22C55E;
-  --color-warning: #F59E0B;
-  --color-danger: #EF4444;
-  --color-bg: #F8FAFC;
-  --color-card: #FFFFFF;
+  --color-primary: #5b5fde;
+  --color-accent: #8b5cf6;
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-bg: #f8fafc;
+  --color-card: #ffffff;
   --color-text-primary: #111827;
-  --color-text-secondary: #6B7280;
-  --color-border: #E5E7EB;
+  --color-text-secondary: #6b7280;
+  --color-border: #e5e7eb;
 
   /* Typography */
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
@@ -30,14 +30,15 @@
   --radius-modal: 20px;
   --radius-image: 16px;
 
-  /* 8px spacing scale */
-  --spacing-xs: 4px;
-  --spacing-sm: 8px;
-  --spacing-md: 16px;
-  --spacing-lg: 24px;
-  --spacing-xl: 32px;
-  --spacing-2xl: 48px;
-  --spacing-section: 72px;
+  /*
+    8px spacing scale: Tailwind's default spacing scale is already 4px-based
+    (1 = 4px, 2 = 8px, 4 = 16px, 6 = 24px, 8 = 32px, 12 = 48px), so it
+    already satisfies the design spec via even-numbered utilities
+    (p-2, gap-4, m-6, p-8, gap-12...). No custom override needed here -
+    defining custom --spacing-sm/md/lg/xl tokens previously collided with
+    Tailwind's reserved sm/md/lg/xl/2xl keys used by max-w-*, w-*, h-*, etc.
+    and silently broke those utilities across the whole app.
+  */
 }
 
 body {

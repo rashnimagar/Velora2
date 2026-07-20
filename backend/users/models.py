@@ -1,7 +1,19 @@
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import models
 
 from common.models import TimeStampedModel
+
+
+class VeloraUserManager(UserManager):
+    """
+    Ensures accounts created via `createsuperuser` always get role='admin'.
+    Without this override they'd default to Role.BUYER, silently breaking
+    every IsAdmin permission check for admin accounts.
+    """
+
+    def create_superuser(self, username, email=None, password=None, **extra_fields):
+        extra_fields.setdefault("role", "admin")
+        return super().create_superuser(username, email, password, **extra_fields)
 
 
 class User(AbstractUser, TimeStampedModel):
@@ -22,6 +34,8 @@ class User(AbstractUser, TimeStampedModel):
     role = models.CharField(max_length=10, choices=Role.choices, default=Role.BUYER)
     phone = models.CharField(max_length=20, blank=True)
     profile_picture = models.ImageField(upload_to="profile_pictures/", blank=True, null=True)
+
+    objects = VeloraUserManager()
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]
