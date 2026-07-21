@@ -23,7 +23,7 @@ urlpatterns = [
     path('api/auth/', include('users.urls')),
     path('api/sellers/', include('sellers.urls')),
     path('api/products/', include('products.urls')),
-    # path('api/cart/', include('cart.urls')),             # Cart step
+    path('api/cart/', include('cart.urls')),
     # path('api/wishlist/', include('wishlist.urls')),     # Wishlist step
     # path('api/orders/', include('orders.urls')),         # Orders step
     # path('api/messages/', include('messaging.urls')),    # Messaging step

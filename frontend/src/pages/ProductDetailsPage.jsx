@@ -1,20 +1,32 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { Heart, MessageCircle, ShoppingCart, Store, ImageOff } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  Heart,
+  MessageCircle,
+  ShoppingCart,
+  Store,
+  ImageOff,
+  Check,
+} from "lucide-react";
 
 import Button from "../components/ui/buttons/Button";
 import { productService } from "../services/productService";
+import { addToCart, clearCartError } from "../features/cart/cartSlice";
 
 export default function ProductDetailsPage() {
   const { slug } = useParams();
   const navigate = useNavigate();
-  const { isAuthenticated } = useSelector((s) => s.auth);
+  const dispatch = useDispatch();
+  const { isAuthenticated, user } = useSelector((s) => s.auth);
+  const cartError = useSelector((s) => s.cart.error);
 
   const [product, setProduct] = useState(null);
   const [activeImage, setActiveImage] = useState(0);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [addingToCart, setAddingToCart] = useState(false);
+  const [addedToCart, setAddedToCart] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -25,6 +37,24 @@ export default function ProductDetailsPage() {
       .catch(() => setNotFound(true))
       .finally(() => setLoading(false));
   }, [slug]);
+
+  const handleAddToCart = async () => {
+    if (!isAuthenticated) {
+      navigate("/login");
+      return;
+    }
+    if (user?.role !== "buyer") return; // sellers/admins never see this button anyway
+    setAddingToCart(true);
+    dispatch(clearCartError());
+    const result = await dispatch(
+      addToCart({ productId: product.id, quantity: 1 }),
+    );
+    setAddingToCart(false);
+    if (addToCart.fulfilled.match(result)) {
+      setAddedToCart(true);
+      setTimeout(() => setAddedToCart(false), 2000);
+    }
+  };
 
   // Guests get redirected to login for these actions, per the PRD.
   // Buyers/sellers proceed to the relevant (not-yet-built) feature page.
@@ -37,14 +67,23 @@ export default function ProductDetailsPage() {
   };
 
   if (loading) {
-    return <div className="max-w-[1280px] mx-auto px-4 sm:px-6 py-16 text-center text-sm text-[var(--color-text-secondary)]">Loading...</div>;
+    return (
+      <div className="max-w-[1280px] mx-auto px-4 sm:px-6 py-16 text-center text-sm text-[var(--color-text-secondary)]">
+        Loading...
+      </div>
+    );
   }
 
   if (notFound || !product) {
     return (
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 py-16 text-center">
-        <p className="text-[var(--color-text-secondary)]">This product doesn't exist or is no longer available.</p>
-        <Link to="/products" className="text-[var(--color-primary)] font-medium mt-3 inline-block">
+        <p className="text-[var(--color-text-secondary)]">
+          This product doesn't exist or is no longer available.
+        </p>
+        <Link
+          to="/products"
+          className="text-[var(--color-primary)] font-medium mt-3 inline-block"
+        >
           Browse other products
         </Link>
       </div>
@@ -61,7 +100,11 @@ export default function ProductDetailsPage() {
         <div>
           <div className="aspect-square bg-gray-50 rounded-[var(--radius-card)] overflow-hidden border border-[var(--color-border)]">
             {images.length > 0 ? (
-              <img src={images[activeImage].image} alt={product.name} className="w-full h-full object-cover" />
+              <img
+                src={images[activeImage].image}
+                alt={product.name}
+                className="w-full h-full object-cover"
+              />
             ) : (
               <div className="w-full h-full flex items-center justify-center">
                 <ImageOff className="h-10 w-10 text-[var(--color-text-secondary)]" />
@@ -75,10 +118,16 @@ export default function ProductDetailsPage() {
                   key={img.id}
                   onClick={() => setActiveImage(i)}
                   className={`h-16 w-16 rounded-[var(--radius-image)] overflow-hidden border-2 ${
-                    activeImage === i ? "border-[var(--color-primary)]" : "border-transparent"
+                    activeImage === i
+                      ? "border-[var(--color-primary)]"
+                      : "border-transparent"
                   }`}
                 >
-                  <img src={img.image} alt="" className="w-full h-full object-cover" />
+                  <img
+                    src={img.image}
+                    alt=""
+                    className="w-full h-full object-cover"
+                  />
                 </button>
               ))}
             </div>
@@ -87,13 +136,19 @@ export default function ProductDetailsPage() {
 
         {/* Info */}
         <div>
-          <span className="text-sm text-[var(--color-text-secondary)]">{product.category_name}</span>
+          <span className="text-sm text-[var(--color-text-secondary)]">
+            {product.category_name}
+          </span>
           <h1 className="font-[family-name:var(--font-display)] text-2xl font-semibold mt-1">
             {product.name}
           </h1>
-          <p className="text-2xl font-semibold text-[var(--color-primary)] mt-3">Rs. {product.price}</p>
+          <p className="text-2xl font-semibold text-[var(--color-primary)] mt-3">
+            Rs. {product.price}
+          </p>
 
-          <p className={`text-sm mt-2 ${outOfStock ? "text-[var(--color-danger)]" : "text-[var(--color-success)]"}`}>
+          <p
+            className={`text-sm mt-2 ${outOfStock ? "text-[var(--color-danger)]" : "text-[var(--color-success)]"}`}
+          >
             {outOfStock ? "Out of stock" : `${product.stock} in stock`}
           </p>
 
@@ -107,16 +162,29 @@ export default function ProductDetailsPage() {
             to={`/sellers/${product.seller.username}`}
             className="flex items-center gap-2 mt-5 text-sm text-[var(--color-text-primary)] hover:text-[var(--color-primary)]"
           >
-            <Store className="h-4 w-4" /> Sold by <span className="font-medium">{product.seller.username}</span>
+            <Store className="h-4 w-4" /> Sold by{" "}
+            <span className="font-medium">{product.seller.username}</span>
           </Link>
+
+          {cartError && (
+            <p className="text-sm text-[var(--color-danger)] bg-[var(--color-danger)]/10 rounded-[var(--radius-input)] px-3 py-2 mt-4">
+              {cartError}
+            </p>
+          )}
 
           <div className="flex flex-col sm:flex-row gap-3 mt-6">
             <Button
-              disabled={outOfStock}
-              onClick={() => handleRestrictedAction("/cart")}
+              disabled={outOfStock || addingToCart}
+              isLoading={addingToCart}
+              onClick={handleAddToCart}
               className="flex-1"
             >
-              <ShoppingCart className="h-4 w-4" /> Add to Cart
+              {addedToCart ? (
+                <Check className="h-4 w-4" />
+              ) : (
+                <ShoppingCart className="h-4 w-4" />
+              )}
+              {addedToCart ? "Added!" : "Add to Cart"}
             </Button>
             <Button
               variant="secondary"

@@ -1,12 +1,27 @@
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { ChevronDown, LayoutDashboard, LogOut, ShieldCheck, User } from "lucide-react";
+import {
+  ChevronDown,
+  LayoutDashboard,
+  LogOut,
+  ShieldCheck,
+  User,
+} from "lucide-react";
 import { logoutUser } from "../../features/auth/authSlice";
+import { clearCartState } from "../../features/cart/cartSlice";
 
 const ROLE_LINKS = {
-  seller: { label: "Seller Verification", path: "/seller/verification", icon: ShieldCheck },
-  admin: { label: "Admin Panel", path: "/admin/sellers/verification", icon: LayoutDashboard },
+  seller: {
+    label: "Seller Verification",
+    path: "/seller/verification",
+    icon: ShieldCheck,
+  },
+  admin: {
+    label: "Admin Panel",
+    path: "/admin/sellers/verification",
+    icon: LayoutDashboard,
+  },
 };
 
 export default function ProfileMenu() {
@@ -32,6 +47,7 @@ export default function ProfileMenu() {
   const handleLogout = async () => {
     setOpen(false);
     await dispatch(logoutUser());
+    dispatch(clearCartState());
     navigate("/login");
   };
 
@@ -53,7 +69,9 @@ export default function ProfileMenu() {
             <p className="text-sm font-medium text-[var(--color-text-primary)] truncate">
               {user.username}
             </p>
-            <p className="text-xs text-[var(--color-text-secondary)] capitalize">{user.role}</p>
+            <p className="text-xs text-[var(--color-text-secondary)] capitalize">
+              {user.role}
+            </p>
           </div>
 
           {roleLink && (

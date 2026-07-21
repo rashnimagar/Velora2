@@ -1,7 +1,7 @@
 import { Routes, Route } from "react-router-dom";
-import LandingPage from "../pages/LandingPage";
 import ProductListingPage from "../pages/ProductListingPage";
 import ProductDetailsPage from "../pages/ProductDetailsPage";
+import CartPage from "../pages/CartPage";
 import NotFoundPage from "../pages/NotFoundPage";
 import LoginPage from "../pages/auth/LoginPage";
 import RegisterPage from "../pages/auth/RegisterPage";
@@ -26,7 +26,7 @@ export default function AppRoutes() {
     <Routes>
       {/* Public / guest pages */}
       <Route element={<PublicLayout />}>
-        <Route path="/" element={<LandingPage />} />
+        <Route path="/" element={<ProductListingPage />} />
         <Route path="/products" element={<ProductListingPage />} />
         <Route path="/products/:slug" element={<ProductDetailsPage />} />
       </Route>
@@ -36,6 +36,13 @@ export default function AppRoutes() {
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
+
+      {/* Buyer-only, but still within the main Navbar/Footer shell */}
+      <Route element={<ProtectedRoute allowedRoles={["buyer"]} />}>
+        <Route element={<PublicLayout />}>
+          <Route path="/cart" element={<CartPage />} />
+        </Route>
+      </Route>
 
       {/* Seller dashboard */}
       <Route element={<ProtectedRoute allowedRoles={["seller"]} />}>
